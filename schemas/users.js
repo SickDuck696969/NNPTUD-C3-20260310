@@ -1,46 +1,71 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
+let bcrypt = require('bcrypt')
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      unique: true
+    },
 
-const userSchema = new Schema({
-  username: {
-    type: String,
-    unique: true,
-    required: true
+    password: {
+      type: String,
+      required: [true, "Password is required"]
+    },
+
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true
+    },
+
+    fullName: {
+      type: String,
+      default: ""
+    },
+
+    avatarUrl: {
+      type: String,
+      default: "https://i.sstatic.net/l60Hf.png"
+    },
+
+    status: {
+      type: Boolean,
+      default: false
+    },
+
+    role: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "role",
+      required: true
+    },
+
+    loginCount: {
+      type: Number,
+      default: 0,
+      min: [0, "Login count cannot be negative"]
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    }
   },
-  password: {
-    type: String,
-    required: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  fullName: {
-    type: String,
-    default: ''
-  },
-  avatarUrl: {
-    type: String,
-    default: 'https://i.sstatic.net/l60Hf.png'
-  },
-  status: {
-    type: Boolean,
-    default: false
-  },
-  role: {
-    type: Schema.Types.ObjectId,
-    ref: 'Role'
-  },
-  loginCount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
-  deletedAt: {
-    type: Date,
-    default: null
+  {
+    timestamps: true
   }
-}, { timestamps: true });
+);
+userSchema.pre('save', function () {
+  let salt = bcrypt.genSaltSync(10);
+  this.password = bcrypt.hashSync(this.password, salt)
+})
+userSchema.pre('findOneAndUpdate', function () {
+  console.log(this);
+  if (this._update.password) {
+    let salt = bcrypt.genSaltSync(10);
+    this._update.password = bcrypt.hashSync(this._update.password, salt)
+  }
+})
 
-module.exports = mongoose.model('User', userSchema);
+
+module.exports = mongoose.model("user", userSchema);

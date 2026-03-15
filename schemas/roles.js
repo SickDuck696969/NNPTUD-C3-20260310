@@ -1,20 +1,25 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
-const roleSchema = new Schema({
-  name: {
-    type: String,
-    unique: true,
-    required: true
-  },
-  description: {
-    type: String,
-    default: ''
-  },
-  deletedAt: {
-    type: Date,
-    default: null
-  }
-}, { timestamps: true });
+const mongoose = require("mongoose");
 
-module.exports = mongoose.model('Role', roleSchema);
+const roleSchema = new mongoose.Schema(
+    {
+        name: {
+            type: String,
+            required: true,
+            unique: true
+        },
+        description: {
+            type: String,
+            default: ""
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
+        }
+    },
+    {
+        timestamps: true
+    }
+);
+
+module.exports = mongoose.model("role", roleSchema);
